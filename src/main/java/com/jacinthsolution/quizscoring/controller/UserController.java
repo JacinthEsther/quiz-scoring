@@ -23,9 +23,9 @@ public class UserController {
         try {
             String savedUser = userService.saveUser(registerUserDto);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(savedUser);
+            return new ResponseEntity<>
+                    (new ApiResponse(true, savedUser), HttpStatus.CREATED);
+
 
         } catch (Exception ex) {
             return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.NOT_FOUND);
