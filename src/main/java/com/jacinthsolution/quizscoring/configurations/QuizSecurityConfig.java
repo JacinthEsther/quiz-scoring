@@ -39,12 +39,8 @@ public class QuizSecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests((requests)->requests
-//                        /*.requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
-//                        .requestMatchers("/myBalance").hasAnyAuthority("VIEWACCOUNT","VIEWBALANCE")
-//                        .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
-//                        .requestMatchers("/myCards").hasAuthority("VIEWCARDS")*/
-                        .requestMatchers("/register", "/submit").permitAll()
-                        .requestMatchers("/getAll", "/retrieveACustomer/**", "/scores/{userId}").authenticated()
+                        .requestMatchers("/register", "/submit", "/scores/{userId}").permitAll()
+                        .requestMatchers("/getAll", "/retrieveACustomer/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/**").permitAll())
                 .formLogin(Customizer.withDefaults())

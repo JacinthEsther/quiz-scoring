@@ -52,14 +52,4 @@ public class UserController {
         }
     }
 
-//    @RequestMapping("/user")
-//    public User getUserDetailsAfterLogin(Authentication authentication) {
-//        List<User> customers = userRepository.findByEmail(authentication.getName());
-//        if (customers.size() > 0) {
-//            return customers.get(0);
-//        } else {
-//            return null;
-//        }
-//
-//    }
 }
