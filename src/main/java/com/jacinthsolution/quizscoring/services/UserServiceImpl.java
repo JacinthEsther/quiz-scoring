@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
         String hashPwd = passwordEncoder.encode(registerUserDto.getPassword());
         user.setPassword(hashPwd);
 
-        user.setRole(registerUserDto.getRole());
+        user.setRole(registerUserDto.getRole().toUpperCase());
         User save = userRepository.save(user);
 
         return "user with " + save.getEmail() + " registered successfully";
