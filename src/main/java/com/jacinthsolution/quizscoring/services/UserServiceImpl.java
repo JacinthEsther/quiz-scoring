@@ -47,7 +47,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.count();
     }
 
-//    @PreAuthorize("hasRole('ADMIN') or (#email == authentication.principal.username)")
     @PreAuthorize("hasRole('ADMIN') or true")
     public boolean isUserAdmin(String email, Authentication authentication) {
         // Retrieve the user from the database based on the email
