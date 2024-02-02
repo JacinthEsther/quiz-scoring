@@ -1,10 +1,9 @@
 package com.jacinthsolution.quizscoring.controller;
 
 import com.jacinthsolution.quizscoring.dtos.QuizSubmissionDTO;
-import com.jacinthsolution.quizscoring.dtos.RegisterUserDto;
 import com.jacinthsolution.quizscoring.dtos.UserQuizScoreDTO;
 import com.jacinthsolution.quizscoring.exceptions.QuizValidationException;
-import com.jacinthsolution.quizscoring.services.QuizService;
+import com.jacinthsolution.quizscoring.services.QuizServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import java.util.List;
 public class QuizController {
 
     @Autowired
-    private QuizService quizService;
+    private QuizServiceImpl quizService;
 
 
 
