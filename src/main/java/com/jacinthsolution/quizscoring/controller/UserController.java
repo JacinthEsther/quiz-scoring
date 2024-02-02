@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,8 +44,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<?> retrieveAllCustomers() {
+    @GetMapping("{email}/getAll")
+    @PreAuthorize("@userServiceImpl.isUserAdmin(#email, authentication)")
+    public ResponseEntity<?> retrieveAllCustomers(@PathVariable String email){
         try {
             return new ResponseEntity<>(userService.retrieveAllCustomers(), HttpStatus.FOUND);
         } catch (Exception ex) {

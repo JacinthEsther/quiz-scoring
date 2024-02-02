@@ -2,6 +2,7 @@ package com.jacinthsolution.quizscoring.services;
 
 import com.jacinthsolution.quizscoring.dtos.RegisterUserDto;
 import com.jacinthsolution.quizscoring.entities.User;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface UserService {
     long count();
 
     List<User> retrieveACustomerBy(String email);
+     boolean isUserAdmin(String email, Authentication authentication);
 
     List<User> retrieveAllCustomers();
 }

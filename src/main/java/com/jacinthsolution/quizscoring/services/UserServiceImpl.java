@@ -4,6 +4,8 @@ import com.jacinthsolution.quizscoring.dtos.RegisterUserDto;
 import com.jacinthsolution.quizscoring.entities.User;
 import com.jacinthsolution.quizscoring.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     public String saveUser(RegisterUserDto registerUserDto) {
         User user = new User();
@@ -44,6 +47,17 @@ public class UserServiceImpl implements UserService {
         return userRepository.count();
     }
 
+//    @PreAuthorize("hasRole('ADMIN') or (#email == authentication.principal.username)")
+    @PreAuthorize("hasRole('ADMIN') or true")
+    public boolean isUserAdmin(String email, Authentication authentication) {
+        // Retrieve the user from the database based on the email
+        List<User> users = userRepository.findByEmail(email);
+        // Check if the user exists and has the 'ADMIN' role
+        System.out.println(users.size());
+        return users.stream().anyMatch(user -> user.getRole().contains("ADMIN"));
+        }
+
+
     @Override
     public List<User> retrieveACustomerBy(String email) {
 
@@ -52,6 +66,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> retrieveAllCustomers() {
+
+
         return userRepository.findAll();
     }
 }
