@@ -45,7 +45,7 @@ public class QuizController {
             List<UserQuizScoreDTO> userScores = quizService.getUserScores(userId);
             return ResponseEntity.ok(userScores);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 }

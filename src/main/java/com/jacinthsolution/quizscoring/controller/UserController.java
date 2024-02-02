@@ -28,7 +28,7 @@ public class UserController {
 
 
         } catch (Exception ex) {
-            return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -38,7 +38,7 @@ public class UserController {
         try {
             return new ResponseEntity<>(userService.retrieveACustomerBy(email), HttpStatus.FOUND);
         }  catch (Exception ex) {
-            return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
 
         }
     }
