@@ -19,7 +19,7 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-public class QuizSecurityConfig {
+public class QuizSecurityFilter {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -39,8 +39,8 @@ public class QuizSecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests((requests)->requests
-                        .requestMatchers("/register", "/submit", "/scores/{userId}").permitAll()
-                        .requestMatchers("/getAll", "/retrieveACustomer/**").authenticated()
+                        .requestMatchers("/register", "/submit", "/scores/**").permitAll()
+                        .requestMatchers("/getAll", "/retrieveACustomer/**","/createQuestion","/addAnswers/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/**").permitAll())
                 .formLogin(Customizer.withDefaults())

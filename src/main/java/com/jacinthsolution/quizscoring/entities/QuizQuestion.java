@@ -28,4 +28,6 @@ public class QuizQuestion {
     @Enumerated(EnumType.STRING)
     private DifficultyLevel difficultyLevel;
 
+
+
 }

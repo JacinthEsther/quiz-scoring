@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SecurityConfig implements AuthenticationProvider {
+public class QuizAuthProvider implements AuthenticationProvider {
 
     @Autowired
     private UserRepository userRepository;
@@ -24,7 +24,7 @@ public class SecurityConfig implements AuthenticationProvider {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder) {
+    public QuizAuthProvider(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 

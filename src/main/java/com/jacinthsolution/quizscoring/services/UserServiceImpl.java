@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
 
     @PreAuthorize("hasRole('ADMIN') or true")
     public boolean isUserAdmin(String email, Authentication authentication) {
-        // Retrieve the user from the database based on the email
+
         List<User> users = userRepository.findByEmail(email);
-        // Check if the user exists and has the 'ADMIN' role
+
         System.out.println(users.size());
         return users.stream().anyMatch(user -> user.getRole().contains("ADMIN"));
         }

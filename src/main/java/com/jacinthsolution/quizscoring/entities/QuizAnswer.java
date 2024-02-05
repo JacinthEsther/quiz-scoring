@@ -1,5 +1,6 @@
 package com.jacinthsolution.quizscoring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
@@ -16,8 +17,11 @@ public class QuizAnswer {
 
     private String answer;
 
+    private String correctAnswer;
+
     @ManyToOne
     @JoinColumn(name = "question_id")
+    @JsonIgnore
     private QuizQuestion quizQuestion;
 
 }

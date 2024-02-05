@@ -1,11 +1,10 @@
 package com.jacinthsolution.quizscoring.services;
 
+import com.jacinthsolution.quizscoring.dtos.QuizAnswerDTO;
+import com.jacinthsolution.quizscoring.dtos.QuizQuestionDTO;
 import com.jacinthsolution.quizscoring.dtos.QuizSubmissionDTO;
 import com.jacinthsolution.quizscoring.dtos.UserQuizScoreDTO;
-import com.jacinthsolution.quizscoring.entities.QuizAnswer;
-import com.jacinthsolution.quizscoring.entities.QuizQuestion;
-import com.jacinthsolution.quizscoring.entities.User;
-import com.jacinthsolution.quizscoring.entities.UserQuizScore;
+import com.jacinthsolution.quizscoring.entities.*;
 import com.jacinthsolution.quizscoring.exceptions.QuizScoringException;
 import com.jacinthsolution.quizscoring.exceptions.QuizValidationException;
 import com.jacinthsolution.quizscoring.repositories.QuizQuestionRepository;
@@ -27,7 +26,6 @@ public class QuizServiceImpl implements QuizService {
 
     @Autowired
     private QuizScoringServiceImpl scoringService;
-
 
 
     public void validateQuizSubmission(QuizSubmissionDTO quizSubmission) {
@@ -76,6 +74,47 @@ public class QuizServiceImpl implements QuizService {
 
         return userQuizScoreDTO;
     }
+
+    public QuizQuestion createQuizQuestion(QuizQuestionDTO questionDTO) {
+
+        QuizQuestion quizQuestion = new QuizQuestion();
+        quizQuestion.setQuestion(questionDTO.getQuestion());
+        quizQuestion.setQuestionType(QuestionType.valueOf(questionDTO.getQuestionType().toUpperCase()));
+        quizQuestion.setDifficultyLevel(DifficultyLevel.valueOf(questionDTO.getDifficultyLevel().toUpperCase()));
+
+
+        return questionRepository.save(quizQuestion);
+    }
+
+    public QuizQuestion addAnswersToQuestion(Long questionId, QuizAnswerDTO answerDTO) {
+        QuizQuestion quizQuestion = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuizValidationException("Quiz question not found"));
+
+        QuizQuestion finalQuizQuestion = quizQuestion;
+        List<QuizAnswer> answers = answerDTO.getAnswers().stream()
+                .map(answerText -> {
+                    QuizAnswer answer = new QuizAnswer();
+                    answer.setAnswer(answerText);
+                    answer.setQuizQuestion(finalQuizQuestion);
+                    return answer;
+                })
+                .collect(Collectors.toList());
+
+        quizQuestion.setAnswers(answers);
+        quizQuestion = questionRepository.save(quizQuestion);
+
+        quizQuestion.getAnswers().forEach(answer -> {
+            if (answer.getAnswer().equals(answerDTO.getCorrectAnswer())) {
+                answer.setCorrectAnswer(answerDTO.getCorrectAnswer());
+            }
+        });
+
+        return questionRepository.save(quizQuestion);
+    }
+
+
+
+
 
 
 }
