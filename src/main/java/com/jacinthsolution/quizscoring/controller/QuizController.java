@@ -27,15 +27,29 @@ public class QuizController {
 
 
 
-    @PostMapping("/submit")
-    public ResponseEntity<String> submitQuiz(@Valid @RequestBody QuizSubmissionDTO quizSubmission) {
+    @PostMapping("{userId}/submit")
+    public ResponseEntity<String> submitQuiz(@Valid @RequestBody QuizSubmissionDTO quizSubmission,
+                                             @PathVariable Long userId) {
         try {
-            quizService.validateQuizSubmission(quizSubmission);
 
-            int score = quizService.scoreQuiz(quizSubmission);
-            quizService.saveUserQuizScore(quizSubmission.getUserId(), quizSubmission.getQuizId(), score);
+            int score = quizService.scoreOneQuiz(userId,quizSubmission);
 
-            return ResponseEntity.ok("Quiz submitted successfully. Your score: " + score);
+            return ResponseEntity.ok("Quiz submitted successfully. Your score is: " + score);
+        } catch (QuizValidationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
+    }
+
+    @PostMapping("{userId}/submit/quiz")
+    public ResponseEntity<String> submitMultipleQuiz(@Valid @RequestBody List<QuizSubmissionDTO> quizSubmission,
+                                             @PathVariable Long userId) {
+        try {
+
+            int score = quizService.scoreMultipleQuiz(userId,quizSubmission);
+
+            return ResponseEntity.ok("Quiz submitted successfully. Your score is: " + score);
         } catch (QuizValidationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -44,12 +58,22 @@ public class QuizController {
     }
 
     @GetMapping("/scores/{userId}")
-    public ResponseEntity<List<UserQuizScoreDTO>> getUserScores(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserScores(@PathVariable Long userId) {
         try {
-            List<UserQuizScoreDTO> userScores = quizService.getUserScores(userId);
+            List<UserQuizScoreDTO> userScores = quizService.getUserResult(userId);
             return ResponseEntity.ok(userScores);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}/total-score")
+    public ResponseEntity<?> getTotalScore(@PathVariable Long userId) {
+        try {
+            int totalScore = quizService.getTotalScore(userId);
+            return ResponseEntity.ok(totalScore);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

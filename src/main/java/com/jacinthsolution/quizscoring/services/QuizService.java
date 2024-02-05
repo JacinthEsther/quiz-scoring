@@ -10,10 +10,13 @@ import java.util.List;
 
 public interface QuizService {
 
-    void validateQuizSubmission(QuizSubmissionDTO quizSubmission);
-    int scoreQuiz(QuizSubmissionDTO quizSubmission);
-    void saveUserQuizScore(Long userId, Long quizId, int score);
-    List<UserQuizScoreDTO> getUserScores(Long userId);
+
+    int scoreOneQuiz(Long userId,QuizSubmissionDTO quizSubmission);
+    void saveUserQuizScore(Long userId, int score, List<Long>quizId);
+    List<UserQuizScoreDTO> getUserResult(Long userId);
     QuizQuestion createQuizQuestion(QuizQuestionDTO questionDTO);
     QuizQuestion addAnswersToQuestion(Long questionId, QuizAnswerDTO answerDTOList);
+    int scoreMultipleQuiz(Long userId,List<QuizSubmissionDTO> quizSubmissions);
+
+    int getTotalScore(Long userId);
 }

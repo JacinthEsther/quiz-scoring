@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class QuizAnswerDTO {
-    private List<String> answers;
+    private List<String> possibleAnswers;
     private String correctAnswer;
-
 }

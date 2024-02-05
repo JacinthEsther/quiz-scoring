@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.List;
+
 @Entity
 @Data
 public class UserQuizScore {
@@ -17,9 +19,8 @@ public class UserQuizScore {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "quiz_id")
-    private QuizQuestion quizQuestion;
+    @OneToMany(mappedBy = "userQuizScore")
+    private List<QuizQuestion> quizQuestions;
 
     private int score;
 

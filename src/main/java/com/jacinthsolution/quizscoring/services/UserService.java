@@ -5,6 +5,7 @@ import com.jacinthsolution.quizscoring.entities.User;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -18,4 +19,6 @@ public interface UserService {
      boolean isUserAdmin(String email, Authentication authentication);
 
     List<User> retrieveAllCustomers();
+
+    Optional<User> findById(Long userId);
 }

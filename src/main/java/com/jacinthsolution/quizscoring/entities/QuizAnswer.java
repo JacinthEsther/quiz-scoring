@@ -15,12 +15,9 @@ public class QuizAnswer {
     @GenericGenerator(name = "native")
     private long id;
 
-    private String answer;
-
     private String correctAnswer;
 
-    @ManyToOne
-    @JoinColumn(name = "question_id")
+    @OneToOne(mappedBy = "correctAnswer")
     @JsonIgnore
     private QuizQuestion quizQuestion;
 
