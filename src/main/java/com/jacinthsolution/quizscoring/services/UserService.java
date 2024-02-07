@@ -11,12 +11,9 @@ public interface UserService {
 
     String saveUser(RegisterUserDto request);
 
-    void deleteAll();
+    User retrieveACustomerBy(String email);
 
-    long count();
-
-    List<User> retrieveACustomerBy(String email);
-     boolean isUserAdmin(String email, Authentication authentication);
+    boolean isUserAdmin(String email, Authentication authentication);
 
     List<User> retrieveAllCustomers();
 

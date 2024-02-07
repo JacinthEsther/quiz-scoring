@@ -2,7 +2,7 @@ package com.jacinthsolution.quizscoring.controller;
 
 import com.jacinthsolution.quizscoring.dtos.ApiResponse;
 import com.jacinthsolution.quizscoring.dtos.RegisterUserDto;
-import com.jacinthsolution.quizscoring.services.UserServiceImpl;
+import com.jacinthsolution.quizscoring.services.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<?> retrieveACustomer(@PathVariable String email) {
         try {
             return new ResponseEntity<>(userService.retrieveACustomerBy(email), HttpStatus.FOUND);
-        }  catch (Exception ex) {
+        } catch (Exception ex) {
             return new ResponseEntity<>(new ApiResponse(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
 
         }
@@ -46,7 +46,7 @@ public class UserController {
 
     @GetMapping("{email}/getAll")
     @PreAuthorize("@userServiceImpl.isUserAdmin(#email, authentication)")
-    public ResponseEntity<?> retrieveAllCustomers(@PathVariable String email){
+    public ResponseEntity<?> retrieveAllCustomers(@PathVariable String email) {
         try {
             return new ResponseEntity<>(userService.retrieveAllCustomers(), HttpStatus.FOUND);
         } catch (Exception ex) {

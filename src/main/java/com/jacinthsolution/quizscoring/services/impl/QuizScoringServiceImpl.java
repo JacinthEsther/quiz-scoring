@@ -1,6 +1,7 @@
-package com.jacinthsolution.quizscoring.services;
+package com.jacinthsolution.quizscoring.services.impl;
 
 import com.jacinthsolution.quizscoring.entities.QuestionType;
+import com.jacinthsolution.quizscoring.services.QuizScoringService;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -14,9 +14,20 @@ public class Authority {
     @GenericGenerator(name = "native")
     private long id;
 
-    private String name;
+    private String authority;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
+    public Authority(String authority, User user) {
+        this.authority = authority;
+        this.user = user;
+
+    }
+
+    public Authority() {
+
+    }
 }

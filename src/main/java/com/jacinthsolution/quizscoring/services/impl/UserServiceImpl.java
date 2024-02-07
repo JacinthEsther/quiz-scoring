@@ -1,8 +1,9 @@
-package com.jacinthsolution.quizscoring.services;
+package com.jacinthsolution.quizscoring.services.impl;
 
 import com.jacinthsolution.quizscoring.dtos.RegisterUserDto;
 import com.jacinthsolution.quizscoring.entities.User;
 import com.jacinthsolution.quizscoring.repositories.UserRepository;
+import com.jacinthsolution.quizscoring.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -25,43 +26,52 @@ public class UserServiceImpl implements UserService {
 
     public String saveUser(RegisterUserDto registerUserDto) {
         User user = new User();
+
+        boolean userExist = checkThatUserDoesNotExist(registerUserDto.getEmail());
+
+        if(userExist){
+            return "user has been registered";
+        }
+
         user.setEmail(registerUserDto.getEmail());
         user.setCreateDate(String.valueOf(new Date(System.currentTimeMillis())));
         String hashPwd = passwordEncoder.encode(registerUserDto.getPassword());
         user.setPassword(hashPwd);
 
-        user.setRole(registerUserDto.getRole().toUpperCase());
-        User save = userRepository.save(user);
+        user.setRole("USER");
 
-        return "user with " + save.getEmail() + " registered successfully";
+        User savedUser = userRepository.save(user);
+
+        return "user with " + savedUser.getEmail() + " registered successfully";
 
     }
 
-
-    @Override
-    public void deleteAll() {
-        userRepository.deleteAll();
+    private boolean checkThatUserDoesNotExist(String email) {
+        Optional<User> byEmail = userRepository.findByEmail(email);
+        return byEmail.isPresent();
     }
 
-    @Override
-    public long count() {
-        return userRepository.count();
-    }
 
-    @PreAuthorize("hasRole('ADMIN') or true")
+    @PreAuthorize("hasAuthority('ADMIN') or true")
     public boolean isUserAdmin(String email, Authentication authentication) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("User not found")
 
-        List<User> users = userRepository.findByEmail(email);
-
-        System.out.println(users.size());
-        return users.stream().anyMatch(user -> user.getRole().contains("ADMIN"));
+        );
+        if (user != null) {
+            return user.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
+        } else {
+            return false;
         }
+    }
 
 
     @Override
-    public List<User> retrieveACustomerBy(String email) {
+    public User retrieveACustomerBy(String email) {
 
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("User not found"));
     }
 
     @Override
@@ -73,6 +83,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findById(Long userId) {
-      return   userRepository.findById(userId);
+        return userRepository.findById(userId);
     }
 }

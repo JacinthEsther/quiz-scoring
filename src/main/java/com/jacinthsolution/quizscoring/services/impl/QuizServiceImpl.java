@@ -1,22 +1,21 @@
-package com.jacinthsolution.quizscoring.services;
+package com.jacinthsolution.quizscoring.services.impl;
 
-import com.jacinthsolution.quizscoring.dtos.QuizAnswerDTO;
-import com.jacinthsolution.quizscoring.dtos.QuizQuestionDTO;
-import com.jacinthsolution.quizscoring.dtos.QuizSubmissionDTO;
-import com.jacinthsolution.quizscoring.dtos.UserQuizScoreDTO;
+import com.jacinthsolution.quizscoring.dtos.*;
 import com.jacinthsolution.quizscoring.entities.*;
 import com.jacinthsolution.quizscoring.exceptions.QuizValidationException;
 import com.jacinthsolution.quizscoring.repositories.QuizAnswerRepository;
 import com.jacinthsolution.quizscoring.repositories.QuizQuestionRepository;
 import com.jacinthsolution.quizscoring.repositories.UserQuizScoreRepository;
+import com.jacinthsolution.quizscoring.services.QuizService;
+import com.jacinthsolution.quizscoring.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,49 +38,43 @@ public class QuizServiceImpl implements QuizService {
     private UserService userService;
 
 
-//todo validate that a question is marked once regardless of the number of time of submission
+    public List<QuizScoreDTO> scoreQuiz(Long userId, List<QuizSubmissionDTO> quizSubmissions) {
+        List<QuizScoreDTO> quizScores = new ArrayList<>();
 
-
-    public int scoreOneQuiz(Long userId,QuizSubmissionDTO quizSubmission) {
-        userService.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        QuizQuestion quizQuestion = questionRepository.findById(quizSubmission.getQuizId())
-                .orElseThrow(() -> new QuizValidationException("Quiz not found"));
-
-        log.info("Here are the correct answers: " + quizQuestion.getCorrectAnswer().getCorrectAnswer());
-
-        String correctAnswer = quizQuestion.getCorrectAnswer().getCorrectAnswer();
-
-        int score = scoringService.scoreQuiz(quizSubmission.getUserAnswer(), correctAnswer, quizQuestion.getQuestionType());
-        saveUserQuizScore(userId,score, Collections.singletonList(quizQuestion.getId()));
-        return score;
-
-    }
-
-    public int scoreMultipleQuiz(Long userId,List<QuizSubmissionDTO> quizSubmissions) {
         int totalScore = 0;
+
         userService.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<Long> quizIds = new ArrayList<>();
+
+        Set<Long> processedQuizIds = new HashSet<>();
 
         for (QuizSubmissionDTO quizSubmission : quizSubmissions) {
             Long quizId = quizSubmission.getQuizId();
-            QuizQuestion quizQuestion = questionRepository.findById(quizId)
+
+            if (processedQuizIds.contains(quizId)) {
+                continue;
+            }
+
+            QuizQuestion retrievedQuizQuestion = questionRepository.findById(quizId)
                     .orElseThrow(() -> new QuizValidationException("Quiz not found"));
 
             String userAnswer = quizSubmission.getUserAnswer();
-            String correctAnswer = quizQuestion.getCorrectAnswer().getCorrectAnswer();
+            String retrievedCorrectAnswer = retrievedQuizQuestion.getCorrectAnswer().getCorrectAnswer();
 
-            totalScore += scoringService.scoreQuiz(userAnswer, correctAnswer, quizQuestion.getQuestionType());
-            quizIds.add(quizQuestion.getId());
+            int scoredUserAnswer = scoringService.scoreQuiz(userAnswer, retrievedCorrectAnswer, retrievedQuizQuestion.getQuestionType());
+            totalScore += scoredUserAnswer;
+
+            processedQuizIds.add(quizId);
+            quizScores.add(new QuizScoreDTO(retrievedQuizQuestion.getQuestion(), retrievedCorrectAnswer, scoredUserAnswer));
         }
-             saveUserQuizScore(userId,totalScore,quizIds);
-        return totalScore;
+
+        saveUserQuizScore(userId, totalScore, new ArrayList<>(processedQuizIds));
+        return quizScores;
+
     }
 
 
-    public void saveUserQuizScore(Long userId, int score, List<Long>quizId) {
+    public void saveUserQuizScore(Long userId, int score, List<Long> quizId) {
         UserQuizScore userQuizScore = new UserQuizScore();
         userQuizScore.setUser(new User(userId));
         userQuizScore.setQuizQuestions(questionRepository.findAllById(quizId));
@@ -101,18 +94,17 @@ public class QuizServiceImpl implements QuizService {
 
     private UserQuizScoreDTO mapToUserQuizScoreDTO(UserQuizScore userQuizScore) {
 
-            UserQuizScoreDTO userQuizScoreDTO = new UserQuizScoreDTO();
+        UserQuizScoreDTO userQuizScoreDTO = new UserQuizScoreDTO();
 
-    List<Long> quizIds = userQuizScore.getQuizQuestions().stream()
-            .map(QuizQuestion::getId)
-            .collect(Collectors.toList());
+        List<Long> quizIds = userQuizScore.getQuizQuestions().stream()
+                .map(QuizQuestion::getId)
+                .collect(Collectors.toList());
 
-    userQuizScoreDTO.setQuizId(quizIds);
-    userQuizScoreDTO.setScore(userQuizScore.getScore());
+        userQuizScoreDTO.setQuizId(quizIds);
+        userQuizScoreDTO.setScore(userQuizScore.getScore());
 
-    return userQuizScoreDTO;
+        return userQuizScoreDTO;
     }
-
 
 
     public int getTotalScore(Long userId) {
@@ -152,11 +144,6 @@ public class QuizServiceImpl implements QuizService {
 
         return questionRepository.save(quizQuestion);
     }
-
-
-
-
-
 
 
 }

@@ -31,7 +31,7 @@ public class User {
     private String password;
 
     @JsonIgnore
-    @OneToMany(mappedBy="user",fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Authority> authorities;
 
     @Column(name = "create_date")

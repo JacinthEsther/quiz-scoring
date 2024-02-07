@@ -1,5 +1,6 @@
 package com.jacinthsolution.quizscoring.configurations;
 
+import com.jacinthsolution.quizscoring.entities.Authority;
 import com.jacinthsolution.quizscoring.entities.User;
 import com.jacinthsolution.quizscoring.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class QuizAuthProvider implements AuthenticationProvider {
 
+    private final PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public QuizAuthProvider(PasswordEncoder passwordEncoder) {
@@ -33,38 +35,22 @@ public class QuizAuthProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String email = authentication.getName();
         String password = authentication.getCredentials().toString();
-        List <User> byEmail = userRepository.findByEmail(email);
-        if (byEmail.size() > 0) {
-                    if (passwordEncoder.matches(password, byEmail.get(0).getPassword())) {
-            List<GrantedAuthority> authorities = getGrantedAuthorities(byEmail.get(0).getRole());
-                        assert authorities != null;
-                        authorities.add(new SimpleGrantedAuthority("ROLE_" + byEmail.get(0).getRole()));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadCredentialsException("No user registered with this email!"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            Set<String> userAuthorities = user.getAuthorities().stream()
+                    .map(Authority::getAuthority)
+                    .collect(Collectors.toSet());
+            List<GrantedAuthority> authorities = userAuthorities.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
             return new UsernamePasswordAuthenticationToken(email, password, authorities);
-
-
-            } else {
-                throw new BadCredentialsException("Invalid password!");
-            }
-        }else {
-            throw new BadCredentialsException("No user registered with this details!");
+        } else {
+            throw new BadCredentialsException("Invalid password!");
         }
     }
 
-
-
-    private List<GrantedAuthority> getGrantedAuthorities(String role) {
-        return null;
-    }
-
-
-//
-//    private List<GrantedAuthority> getGrantedAuthorities(Set<Authority> authorities) {
-//        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-//        for (Authority authority : authorities) {
-//            grantedAuthorities.add(new SimpleGrantedAuthority(authority.getName()));
-//        }
-//        return grantedAuthorities;
-//    }
 
     @Override
     public boolean supports(Class<?> authentication) {

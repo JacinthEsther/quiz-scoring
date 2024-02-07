@@ -15,6 +15,6 @@ public class RegisterUserDto {
     @Size(min = 4, message = "Password should be at least 4 characters long")
     private String password;
 
-    @Pattern(regexp = "^(?i)(user|admin)$", message = "Role should be 'user' or 'admin'")
-    private String role;
+//    @Pattern(regexp = "^(?i)(user|admin)$", message = "Role should be 'user' or 'admin'")
+//    private String role;
 }

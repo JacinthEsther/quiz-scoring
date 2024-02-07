@@ -1,12 +1,9 @@
 package com.jacinthsolution.quizscoring.controller;
 
-import com.jacinthsolution.quizscoring.dtos.QuizAnswerDTO;
-import com.jacinthsolution.quizscoring.dtos.QuizQuestionDTO;
-import com.jacinthsolution.quizscoring.dtos.QuizSubmissionDTO;
-import com.jacinthsolution.quizscoring.dtos.UserQuizScoreDTO;
+import com.jacinthsolution.quizscoring.dtos.*;
 import com.jacinthsolution.quizscoring.entities.QuizQuestion;
 import com.jacinthsolution.quizscoring.exceptions.QuizValidationException;
-import com.jacinthsolution.quizscoring.services.QuizServiceImpl;
+import com.jacinthsolution.quizscoring.services.impl.QuizServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,30 +23,13 @@ public class QuizController {
     private QuizServiceImpl quizService;
 
 
-
-    @PostMapping("{userId}/submit")
-    public ResponseEntity<String> submitQuiz(@Valid @RequestBody QuizSubmissionDTO quizSubmission,
-                                             @PathVariable Long userId) {
-        try {
-
-            int score = quizService.scoreOneQuiz(userId,quizSubmission);
-
-            return ResponseEntity.ok("Quiz submitted successfully. Your score is: " + score);
-        } catch (QuizValidationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-        }
-    }
-
     @PostMapping("{userId}/submit/quiz")
-    public ResponseEntity<String> submitMultipleQuiz(@Valid @RequestBody List<QuizSubmissionDTO> quizSubmission,
-                                             @PathVariable Long userId) {
+    public ResponseEntity<?> submitQuiz(@Valid @RequestBody List<QuizSubmissionDTO> quizSubmission,
+                                        @PathVariable Long userId) {
         try {
 
-            int score = quizService.scoreMultipleQuiz(userId,quizSubmission);
-
-            return ResponseEntity.ok("Quiz submitted successfully. Your score is: " + score);
+            List<QuizScoreDTO> score = quizService.scoreQuiz(userId, quizSubmission);
+            return new ResponseEntity<>(score, HttpStatus.FOUND);
         } catch (QuizValidationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -80,7 +60,7 @@ public class QuizController {
     @PostMapping("{email}/createQuestion")
     @PreAuthorize("@userServiceImpl.isUserAdmin(#email, authentication)")
     public ResponseEntity<QuizQuestion> createQuizQuestion(@RequestBody QuizQuestionDTO questionDTO,
-                                                           @PathVariable String email             ) {
+                                                           @PathVariable String email) {
         QuizQuestion createdQuestion = quizService.createQuizQuestion(questionDTO);
         return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
     }
@@ -92,7 +72,7 @@ public class QuizController {
             @PathVariable Long questionId,
             @RequestBody QuizAnswerDTO answerDTOList) {
         QuizQuestion quizQuestionWithAnswer = quizService.addAnswersToQuestion(questionId, answerDTOList);
-        return new ResponseEntity<>(quizQuestionWithAnswer,HttpStatus.OK);
+        return new ResponseEntity<>(quizQuestionWithAnswer, HttpStatus.OK);
     }
 }
 

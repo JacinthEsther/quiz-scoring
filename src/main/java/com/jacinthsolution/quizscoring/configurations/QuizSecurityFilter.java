@@ -38,15 +38,15 @@ public class QuizSecurityFilter {
                 })).csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-                .authorizeHttpRequests((requests)->requests
+                .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/submit", "/scores/**").permitAll()
-                        .requestMatchers("/getAll", "/retrieveACustomer/**","/createQuestion","/addAnswers/**").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/getAll", "/retrieveACustomer/**", "/createQuestion", "/addAnswers/**").authenticated()
                         .requestMatchers("/**").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }
+
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
